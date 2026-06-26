@@ -1,19 +1,29 @@
+import utils.transport
+import utils.session
 from fastapi import FastAPI
 from pydantic import BaseModel
 import pandas as pd
 import joblib
-
+from pathlib import Path
 
 # Create FastAPI Application
-
 app = FastAPI()
 
+# --------------------------------------------------
 # Load Trained Model and Scaler
+# --------------------------------------------------
 
-model = joblib.load("../models/logistic_model.pkl")
-scaler = joblib.load("../models/scaler.pkl")
+BASE_DIR = Path(__file__).resolve().parent.parent
 
+MODEL_PATH = BASE_DIR / "models" / "logistic_model.pkl"
+SCALER_PATH = BASE_DIR / "models" / "scaler.pkl"
+
+model = joblib.load(MODEL_PATH)
+scaler = joblib.load(SCALER_PATH)
+
+# --------------------------------------------------
 # Input Data Blueprint
+# --------------------------------------------------
 
 class PersonalityData(BaseModel):
     Time_spent_Alone: float
@@ -24,8 +34,9 @@ class PersonalityData(BaseModel):
     Friends_circle_size: float
     Post_frequency: float
 
-
+# --------------------------------------------------
 # Home Endpoint
+# --------------------------------------------------
 
 @app.get("/")
 def home():
@@ -33,7 +44,9 @@ def home():
         "message": "Welcome to the Introvert-Extrovert Personality Prediction API!"
     }
 
+# --------------------------------------------------
 # Prediction Endpoint
+# --------------------------------------------------
 
 @app.post("/predict")
 def predict(data: PersonalityData):
@@ -60,12 +73,8 @@ def predict(data: PersonalityData):
     prediction = model.predict(scaled_data)
 
     # Convert numerical prediction to label
-    if prediction[0] == 0:
-        personality = "Introvert"
-    else:
-        personality = "Extrovert"
+    personality = "Introvert" if prediction[0] == 0 else "Extrovert"
 
-    # Return result
     return {
         "prediction": personality
     }

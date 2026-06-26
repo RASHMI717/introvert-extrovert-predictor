@@ -10,11 +10,11 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Environment variables
-.env
 
 # VS Code
-.vscode/
 
 # OS files
 .DS_Store
 Thumbs.db
+config.bat
+node_modules
